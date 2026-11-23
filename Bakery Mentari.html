@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bakery Mentari — Misi Problem Solving</title>
+<style>
+:root{
+  --navy:#0B2545;--navy-2:#13315C;--teal:#0B7F8A;--teal-d:#075F68;
+  --amber:#F2A93B;--amber-d:#B97508;--bg:#F3F6FA;--card:#fff;--ink:#14213D;
+  --muted:#5A6A82;--line:#D9E1EC;--ok:#17855A;--ok-bg:#E6F6EF;
+  --bad:#B93A2E;--bad-bg:#FDECEA;--warn-bg:#FFF4DC;--r:14px;
+  --sh:0 6px 20px rgba(11,37,69,.08)
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif}
+button,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:980px;margin:0 auto;padding:0 14px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Header */
+.top{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 100%);color:#fff;border-bottom:4px solid var(--amber)}
+.top .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px}
+.brand{display:flex;gap:10px;align-items:center}
+.logo{font-size:28px;background:rgba(255,255,255,.12);border-radius:12px;width:48px;height:48px;display:grid;place-items:center}
+.brand h1{margin:0;font-size:1.08rem;line-height:1.2}
+.brand p{margin:0;font-size:.8rem;opacity:.8}
+.stats{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{background:rgba(255,255,255,.12);border-radius:999px;padding:5px 12px;display:flex;gap:6px;align-items:baseline;font-size:.82rem}
+.chip b{font-size:1.05rem;color:var(--amber)}
+
+/* Buttons */
+.btn{border:0;border-radius:10px;padding:10px 16px;min-height:44px;font-weight:600;cursor:pointer;transition:transform .12s,background .12s}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:none}
+.btn:focus-visible,.icon:focus-visible,.step:focus-visible,.opt:focus-visible,.mpill:focus-visible,.dot:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.btn.primary{background:var(--teal);color:#fff;box-shadow:0 3px 0 var(--teal-d)}
+.btn.primary:hover{background:#09707a}
+.btn.gold{background:var(--amber);color:#2a1d00;box-shadow:0 3px 0 var(--amber-d)}
+.btn.soft{background:#fff;border:1.5px solid var(--line);color:var(--navy)}
+.btn.ghost{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.3);min-height:38px;padding:6px 14px}
+.btn[disabled]{opacity:.5;cursor:not-allowed;transform:none}
+
+/* Mission nav */
+.missions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 0 4px}
+.mpill{position:relative;display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px 12px;cursor:pointer;text-align:left;overflow:hidden}
+.mpill .mi{font-size:22px}
+.mpill b{display:block;font-size:.9rem}
+.mpill small{color:var(--muted);font-size:.78rem;display:block;line-height:1.2}
+.mpill .bar{position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--line)}
+.mpill .bar i{display:block;height:100%;background:var(--teal);transition:width .4s}
+.mpill.active{border-color:var(--teal);box-shadow:0 0 0 3px rgba(11,127,138,.15)}
+.mpill.done .bar i{background:var(--ok)}
+.mpill[disabled]{opacity:.55;cursor:not-allowed}
+
+/* Cards */
+main{padding:10px 0 30px}
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:20px;margin-top:12px;border:1px solid var(--line)}
+.card h2{margin:6px 0 10px;color:var(--navy);font-size:1.35rem;line-height:1.25}
+.card h2:focus{outline:none}
+.brief{display:flex;gap:12px;background:linear-gradient(135deg,#FFF8E8,#FFFDF6);border:1.5px solid #F4D9A0;border-radius:var(--r);padding:14px 16px;margin-top:12px}
+.brief .bi{font-size:28px}
+.brief p{margin:2px 0 0;color:#4a3a14;font-size:.93rem}
+.shead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.badge{background:var(--navy);color:#fff;border-radius:999px;font-size:.78rem;padding:3px 12px;font-weight:600}
+.dots{display:flex;gap:6px}
+.dot{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-weight:700;color:var(--muted);cursor:pointer}
+.dot.cur{border-color:var(--teal);color:var(--teal);box-shadow:0 0 0 3px rgba(11,127,138,.15)}
+.dot.done{background:var(--ok);border-color:var(--ok);color:#fff}
+.dot[disabled]{opacity:.45;cursor:not-allowed}
+.starrow{font-size:1.35rem;letter-spacing:2px;color:var(--amber)}
+.starrow .off{color:#D5DBE5}
+.case{background:var(--bg);border-left:5px solid var(--teal);border-radius:10px;padding:10px 14px;margin:8px 0}
+.case p{margin:2px 0 0}
+details.concept{border:1.5px dashed var(--line);border-radius:10px;padding:8px 14px;margin:10px 0;background:#FBFCFE}
+details.concept summary{cursor:pointer;font-weight:700;color:var(--teal-d);padding:4px 0}
+details.concept div{font-size:.95rem;padding:4px 0 6px}
+details.concept ul{margin:6px 0 0;padding-left:20px}
+.goal{font-weight:600;color:var(--navy);margin:12px 0 6px}
+.ohint{font-size:.85rem;color:var(--muted);margin-bottom:8px}
+.olabel{font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--teal-d);margin:8px 2px}
+
+/* Order list */
+ol.order{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.step{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;cursor:grab;transition:border-color .15s,background .15s,box-shadow .15s;touch-action:manipulation}
+.step:hover{border-color:#B8C5D8}
+.step .grip{color:#9AA7BB;font-size:20px;line-height:1}
+.step .num{flex:none;width:30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:700;font-size:.9rem}
+.step .txt{flex:1;min-width:0}
+.step .txt b{display:block;line-height:1.3}
+.step .txt span{display:block;color:var(--muted);font-size:.86rem;line-height:1.35;margin-top:2px}
+.step .mv{display:flex;flex-direction:column;gap:4px}
+.icon{width:40px;height:30px;border:1.5px solid var(--line);background:#fff;border-radius:8px;cursor:pointer;font-size:.8rem;color:var(--navy)}
+.icon:hover:not([disabled]){background:var(--bg)}
+.icon[disabled]{opacity:.35;cursor:not-allowed}
+.step.sel{border-color:var(--amber);background:var(--warn-bg);box-shadow:0 0 0 3px rgba(242,169,59,.3)}
+.step.flag{border-color:var(--amber);background:var(--warn-bg)}
+.step.ok{border-color:var(--ok);background:var(--ok-bg);cursor:default}
+.step.ok .num{background:var(--ok)}
+.step.dragging{opacity:.45}
+.step.over-top{box-shadow:0 -4px 0 var(--teal)}
+.step.over-bottom{box-shadow:0 4px 0 var(--teal)}
+
+/* Match */
+.mrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;background:#fff}
+.mrow label{flex:1 1 280px;display:flex;gap:10px;align-items:flex-start}
+.mrow .num{flex:none;width:28px;height:28px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:700;font-size:.85rem}
+.mrow select{flex:0 0 230px;max-width:100%;min-height:44px;border:1.5px solid var(--line);border-radius:10px;padding:6px 10px;background:#fff}
+.mrow.ok{background:var(--ok-bg);border-color:var(--ok)}
+.mrow.bad{background:var(--warn-bg);border-color:var(--amber)}
+.mrow .clue{flex:1 1 100%;color:#7a5200;font-size:.85rem}
+.tick{color:var(--ok);font-weight:700}
+
+/* Feedback */
+.fbwrap{margin-top:14px;display:grid;gap:10px}
+.fbbox{border-radius:12px;padding:12px 14px;border:1.5px solid var(--line);background:#fff;animation:pop .35s ease}
+.fbbox p{margin:4px 0 0}
+.fbbox ul{margin:6px 0 0;padding-left:20px}
+.fbbox.ok{background:var(--ok-bg);border-color:var(--ok)}
+.fbbox.bad{background:var(--bad-bg);border-color:#E7A29B}
+.fbbox.hint{background:#EEF7FF;border-color:#B5D5F2}
+.fbbox.info{background:var(--warn-bg);border-color:#F1D18C}
+@keyframes pop{from{transform:scale(.97);opacity:0}to{transform:none;opacity:1}}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+
+/* Report builder */
+.rsec{border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:12px;background:#fff}
+.rsec.ok{border-color:var(--ok);background:#F6FCF9}
+.rh{display:flex;gap:10px;align-items:flex-start;margin-bottom:8px}
+.rh .rn{flex:none;width:30px;height:30px;border-radius:50%;background:var(--teal);color:#fff;display:grid;place-items:center;font-weight:700}
+.rh small{display:block;color:var(--muted);font-size:.84rem}
+.rh .tick{margin-left:auto;white-space:nowrap}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;min-height:44px}
+.opt:hover:not([disabled]){border-color:var(--teal);background:#F2FAFB}
+.opt.wrong{text-decoration:line-through;color:var(--muted);background:var(--bad-bg);border-color:#E7A29B;cursor:not-allowed}
+.rsec textarea{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px;resize:vertical;min-height:84px;background:#fff}
+
+/* Intro / final */
+.hero{background:linear-gradient(135deg,#fff 0%,#F2FAFB 100%)}
+.eyebrow{color:var(--teal-d);font-weight:700;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase}
+.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:14px 0}
+.how div{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px}
+.how b{display:block;color:var(--navy)}
+.how span{font-size:.88rem;color:var(--muted)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
+.tile{background:var(--navy);color:#fff;border-radius:12px;padding:12px 14px}
+.tile small{opacity:.75;display:block}
+.tile b{font-size:1.5rem;color:var(--amber)}
+.mbar{display:flex;align-items:center;gap:10px;margin:6px 0}
+.mbar span{flex:0 0 190px;font-size:.9rem}
+.mbar i{flex:1;height:10px;background:var(--line);border-radius:99px;overflow:hidden;position:relative}
+.mbar i em{position:absolute;inset:0 auto 0 0;background:var(--teal);border-radius:99px}
+pre.report{white-space:pre-wrap;word-wrap:break-word;background:#FBFCFE;border:1.5px solid var(--line);border-radius:12px;padding:14px;font:inherit;font-size:.93rem;max-height:420px;overflow:auto;user-select:text}
+ul.learn{padding-left:20px;margin:6px 0}
+ul.learn li{margin:4px 0}
+
+/* Modal, toast, confetti */
+#modal{position:fixed;inset:0;background:rgba(11,37,69,.55);display:grid;place-items:center;z-index:60;padding:16px}
+#modal[hidden]{display:none}
+.mbox{background:#fff;border-radius:16px;max-width:560px;width:100%;max-height:88vh;overflow:auto;padding:20px;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.mbox h2{margin:0 0 8px;color:var(--navy)}
+.mbox ul{padding-left:20px}
+.mbtns{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:10px 18px;border-radius:999px;opacity:0;transition:.3s;z-index:70;pointer-events:none;max-width:90vw;text-align:center;font-size:.9rem}
+#toast.show{opacity:1;transform:translateX(-50%)}
+#fx{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:50}
+#fx i{position:absolute;top:-16px;width:9px;height:14px;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(108vh) rotate(720deg)}}
+footer{color:var(--muted);font-size:.78rem;text-align:center;padding:6px 0 24px}
+
+@media (max-width:640px){
+  .missions{gap:6px}
+  .mpill{padding:8px;gap:6px}
+  .mpill small{display:none}
+  .card{padding:14px}
+  .mbar span{flex-basis:120px}
+  .mrow select{flex:1 1 100%}
+  .step .grip{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">🥖</div>
+      <div>
+        <h1>Bakery Mentari · Misi Problem Solving</h1>
+        <p>Game urutan berpikir: Fishbone 6M · 5 Whys · PDCA</p>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="chip" title="Poin pengalaman"><span>XP</span><b id="xp">0</b></div>
+      <div class="chip" title="Total bintang"><span>⭐</span><b id="stars">0/0</b></div>
+      <div class="chip" title="Berapa tahap berturut-turut selesai tanpa salah"><span>🔥 Streak</span><b id="streak">0</b></div>
+      <button class="btn ghost" id="btnHelp" type="button">Petunjuk</button>
+      <button class="btn ghost" id="btnReset" type="button">↺ Reset</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="missions" id="missionNav" aria-label="Daftar misi"></nav>
+  <main id="view"></main>
+  <footer>Game edukasi single-file · tanpa aset eksternal · siap disematkan di LMS (iframe)</footer>
+</div>
+
+<div id="modal" hidden></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="fx" aria-hidden="true"></div>
+<div id="sr" class="sr-only" aria-live="polite"></div>
+<noscript>Game ini membutuhkan JavaScript untuk berjalan.</noscript>
+
+<script>
+(function(){
+'use strict';
+
+/* ============ KONFIGURASI ============ */
+const GAME_ID = 'bakery-mentari-problem-solving';
+// Untuk keamanan di LMS, ganti '*' dengan origin LMS Anda, mis. 'https://lms.sekolah.id'
+const LMS_ORIGIN = '*';
+
+/* ============ UTIL ============ */
+const $ = (s, r) => (r || document).querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+// langkah: [id, judul, detail, tier(opsional)] — tier sama = urutan boleh bertukar
+const mk = arr => arr.map((s, i) => ({ id: s[0], h: s[1], d: s[2], t: s[3] === undefined ? i : s[3] }));
+// aturan diagnostik: semua id di "a" harus berada SEBELUM semua id di "b"
+const R = (a, b, msg) => ({ a, b, msg });
+
+/* ============ DATA MISI ============ */
+const MISSIONS = [
+  { id: 1, icon: '🔍', short: 'Bedah Masalah', name: 'Bedah Masalah & Fishbone 6M',
+    brief: 'Output roti tawar shift pagi di Bakery Mentari anjlok dan produk cacat makin sering muncul. Pastikan masalah dirumuskan spesifik, kumpulkan bukti, petakan penyebab dengan 6M, lalu gali hingga akar masalah yang tervalidasi — bukan sekadar mencari siapa yang salah.' },
+  { id: 2, icon: '🔄', short: 'Siklus PDCA', name: 'Eksekusi Siklus PDCA',
+    brief: 'Akar penyebab sudah ditemukan, tetapi roti tawar masih terlambat masuk display (rata-rata 06.40, standar 06.00). Jalankan perbaikan secara disiplin: Plan → Do → Check → Act.' },
+  { id: 3, icon: '📋', short: 'Solusi & Laporan', name: 'Evaluasi Solusi, Efisiensi & Laporan Kendala',
+    brief: 'Ada beberapa alternatif tindakan. Pilih yang paling efisien dan berdampak nyata pada akar masalah, lalu rangkum semuanya dalam Laporan Kendala yang solutif.' }
+];
+
+const STAGES = [
+/* ---------- MISI 1 ---------- */
+{ id: '1.1', m: 1, type: 'order', title: 'Rumuskan Masalah Spesifik',
+  caseText: 'Pagi ini supervisor menerima keluhan: “Produksi roti shift pagi bermasalah.” Belum ada angka dan belum jelas bagian mana yang bermasalah. Log produksi 14 hari dan catatan QC tersedia di kantor produksi.',
+  goal: 'Urutkan alur dari keluhan yang kabur sampai masalah siap dianalisis penyebabnya.',
+  concept: '<b>Rumus masalah spesifik:</b> <b>[Masalah]</b> terjadi pada <b>[proses/area]</b> selama <b>[waktu]</b>, dengan dampak <b>[ukuran]</b>. Rumusan yang baik menjawab: <i>apa, kapan, di mana, seberapa besar, dan dampaknya</i>.<ul><li>Kabur: “Produksi bermasalah.”</li><li>Terukur: “Output roti tawar turun 20% pada lini shift pagi selama 2 minggu.”</li></ul>',
+  top: 'Paling awal', bottom: 'Paling akhir',
+  steps: mk([
+    ['s1', 'Tangkap keluhan awal apa adanya', 'Catat “produksi pagi bermasalah” sebagai titik awal penyelidikan, bukan sebagai kesimpulan.'],
+    ['s2', 'Kumpulkan fakta: apa, kapan, di mana', 'Tarik log produksi 14 hari, catatan QC, dan laporan shift untuk lini roti tawar.'],
+    ['s3', 'Ukur besaran dan bandingkan dengan baseline', 'Output 1.200 → 960 pcs/hari (−20%); cacat 3% → 9%; kehilangan penjualan ± Rp2,4 juta/hari.'],
+    ['s4', 'Tulis pernyataan masalah spesifik', '“Output roti tawar turun 20% pada lini shift pagi selama 2 minggu terakhir, dengan dampak kehilangan penjualan ± Rp2,4 juta/hari.”'],
+    ['s5', 'Sepakati rumusan dengan tim dan atasan', 'Cek kelengkapan lima pertanyaan (apa, kapan, di mana, seberapa besar, dampak).'],
+    ['s6', 'Baru mulai menggali penyebab', 'Gunakan Fishbone 6M dan 5 Whys. Solusi belum dibahas.']
+  ]),
+  rules: [
+    R(['s1'], ['s2', 's3'], 'Penyelidikan perlu berangkat dari keluhan yang tercatat, baru dilengkapi data.'),
+    R(['s2'], ['s3'], 'Mengukur besaran sebelum tahu apa, kapan, dan di mana datanya menghasilkan angka tanpa konteks.'),
+    R(['s2', 's3'], ['s4'], 'Rumusan ditulis sebelum fakta dan ukurannya terkumpul — hasilnya masih asumsi, bukan masalah terukur.'),
+    R(['s4'], ['s5'], 'Ada yang meminta kesepakatan atas rumusan yang belum ditulis. Apa yang akan disepakati?'),
+    R(['s5'], ['s6'], 'Mencari penyebab sebelum masalah disepakati jelas membuat analisis melebar ke mana-mana.')
+  ],
+  hints: ['Mulai dari yang paling mentah: keluhan yang diterima. Apakah keluhan itu sudah bisa disebut masalah spesifik?',
+          'Fakta (apa, kapan, di mana) dan ukuran (seberapa besar) harus ada sebelum kalimat masalah ditulis; kesepakatan datang setelah kalimatnya tersedia.'],
+  recap: '<b>Alur yang tepat:</b> keluhan → fakta → ukuran vs baseline → rumusan 5W → kesepakatan → baru analisis penyebab. Rumusan spesifik mencegah tim “mengobati” gejala yang salah.' },
+
+{ id: '1.2', m: 1, type: 'order', title: 'Susun Fishbone 6M',
+  caseText: 'Rumusan masalah sudah disepakati: “Output roti tawar turun 20% (1.200 → 960 pcs/hari) dan cacat naik 3% → 9% pada lini shift pagi selama 2 minggu terakhir.” Tim kini memetakan penyebab potensial secara terstruktur dengan diagram tulang ikan.',
+  goal: 'Urutkan langkah membuat dan memakai Fishbone Diagram 6M.',
+  concept: '<b>6M:</b> <b>Man</b> (kompetensi, kelelahan) · <b>Method</b> (SOP tidak jelas, urutan kerja) · <b>Machine</b> (setting, downtime) · <b>Material</b> (variasi bahan, kemasan) · <b>Measurement</b> (pencatatan, kalibrasi) · <b>Mother Nature</b> (suhu, kebersihan, tata letak).',
+  top: 'Paling awal', bottom: 'Paling akhir',
+  steps: mk([
+    ['f1', 'Tulis masalah spesifik di “kepala ikan”', 'Gunakan rumusan yang sudah disepakati sebagai kepala diagram.'],
+    ['f2', 'Gambar enam tulang utama 6M', 'Man, Method, Machine, Material, Measurement, Mother Nature.'],
+    ['f3', 'Brainstorm penyebab potensial tiap kategori', 'Libatkan operator, QC, dan gudang. Catat tanpa menghakimi siapa yang salah.'],
+    ['f4', 'Kelompokkan, gabungkan duplikat, pisahkan gejala dari penyebab', '“Adonan tidak mengembang” adalah gejala; tanyakan apa yang membuatnya begitu.'],
+    ['f5', 'Tandai penyebab paling mungkin berdasarkan data', 'Cocokkan dengan log produksi, hasil kalibrasi, dan catatan QC.'],
+    ['f6', 'Pilih 1–2 kandidat untuk digali dengan 5 Whys', 'Fokus pada penyebab dengan bukti terkuat, bukan yang paling mudah dituduhkan.']
+  ]),
+  rules: [
+    R(['f1'], ['f2', 'f3'], 'Diagram dimulai tanpa kepala ikan: penyebab yang dicari belum jelas untuk masalah yang mana.'),
+    R(['f2'], ['f3'], 'Brainstorm tanpa kerangka kategori cenderung berantakan dan melewatkan sudut pandang, misalnya Measurement atau lingkungan.'),
+    R(['f3'], ['f4'], 'Penyebab dikelompokkan sebelum dikumpulkan — materinya belum ada.'),
+    R(['f4'], ['f5'], 'Memprioritaskan sebelum penyebab dirapikan membuat gejala ikut terhitung sebagai penyebab.'),
+    R(['f5'], ['f6'], 'Memilih kandidat tanpa dukungan data berisiko memilih penyebab yang mudah dituduhkan, bukan yang benar.')
+  ],
+  hints: ['Setiap diagram punya titik tujuan dan kerangka sebelum diisi. Apa yang harus ada lebih dulu sebelum ide ditulis?',
+          'Alurnya: kerangka → kumpulkan ide → rapikan → uji dengan data → pilih untuk digali lebih dalam.'],
+  recap: '<b>Alur yang tepat:</b> kepala ikan → tulang 6M → brainstorm → rapikan (pisahkan gejala) → prioritaskan dengan data → pilih kandidat untuk 5 Whys.' },
+
+{ id: '1.3', m: 1, type: 'match', title: 'Petakan Penyebab ke 6M',
+  caseText: 'Dalam brainstorming, tim mengumpulkan tujuh kemungkinan penyebab. Kelompokkan masing-masing ke kategori 6M yang paling tepat.',
+  goal: 'Pilih kategori 6M untuk setiap penyebab potensial, lalu tekan Cek Pemetaan.',
+  concept: '<ul><li><b>Man:</b> kompetensi, kelelahan, kebiasaan kerja orang</li><li><b>Method:</b> SOP tidak jelas/tidak konsisten, urutan kerja</li><li><b>Machine:</b> setting tidak sesuai spesifikasi, downtime tinggi</li><li><b>Material:</b> variasi bahan baku, kemasan tidak standar</li><li><b>Measurement:</b> pencatatan tidak lengkap, alat ukur belum dikalibrasi</li><li><b>Mother Nature:</b> suhu tidak stabil, kebersihan, tata letak</li></ul>',
+  cats: [
+    { v: 'Man', l: 'Man (Manusia)' }, { v: 'Method', l: 'Method (Metode/SOP)' }, { v: 'Machine', l: 'Machine (Mesin)' },
+    { v: 'Material', l: 'Material (Bahan)' }, { v: 'Measurement', l: 'Measurement (Pengukuran)' }, { v: 'Mother Nature', l: 'Mother Nature (Lingkungan)' }
+  ],
+  items: [
+    { id: 'm1', text: 'Operator baru belum dilatih membaca resep dan menimbang bahan.', ans: 'Man', clue: 'Fokusnya pada kompetensi orang yang mengerjakan.' },
+    { id: 'm2', text: 'Urutan kerja pencampuran berbeda tiap operator karena SOP tidak jelas.', ans: 'Method', clue: 'Ini soal cara dan prosedur kerja, bukan orang atau alatnya.' },
+    { id: 'm3', text: 'Setelan suhu oven tidak sesuai spesifikasi dan downtime mixer tinggi.', ans: 'Machine', clue: 'Yang bermasalah adalah peralatan dan pengaturannya.' },
+    { id: 'm4', text: 'Tepung dari dua pemasok dengan kadar protein berbeda tercampur dalam satu batch.', ans: 'Material', clue: 'Variasi apa yang masuk ke dalam proses?' },
+    { id: 'm5', text: 'Timbangan adonan belum dikalibrasi dan pencatatan suhu proofing tidak lengkap.', ans: 'Measurement', clue: 'Menyangkut alat ukur dan data yang dicatat, bukan mesin produksinya.' },
+    { id: 'm6', text: 'Operator pagi kelelahan karena lembur dua shift berturut-turut.', ans: 'Man', clue: 'Kondisi fisik pekerja memengaruhi hasil kerjanya.' },
+    { id: 'm7', text: 'Suhu ruang proofing tidak stabil, area kerja kotor, dan tata letak bahan jauh dari meja kerja.', ans: 'Mother Nature', clue: 'Kondisi sekitar tempat kerja dan tata ruangnya.' }
+  ],
+  hints: ['Tanyakan tiap kasus: ini tentang orangnya, cara kerjanya, mesinnya, bahannya, cara mengukurnya, atau lingkungannya?',
+          'Bedakan Method (prosedur yang dijalankan) dari Measurement (alat ukur dan pencatatan), serta Man (kemampuan/kondisi orang) dari Method.'],
+  recap: '<b>Pemetaan tepat.</b> Pengelompokan 6M membantu tim melihat seluruh sudut pandang dan tidak berhenti pada satu dugaan favorit.' },
+
+{ id: '1.4', m: 1, type: 'order', title: 'Gali dengan 5 Whys sampai Akar Tervalidasi',
+  caseText: 'Dari Fishbone, kandidat terkuat ada di Method: SOP serah terima shift. Tim menggali dengan 5 Whys; setiap jawaban harus berbasis fakta dan observasi, lalu akar penyebab divalidasi. Susun rantainya dari gejala sampai validasi.',
+  goal: 'Urutkan rantai sebab-akibat dari gejala menuju akar penyebab, lalu validasinya.',
+  concept: '<b>5 Whys:</b> tanyakan “mengapa?” berulang kali; tiap jawaban menjelaskan jawaban sebelumnya dan didukung fakta. Berhenti saat penyebabnya bisa dikendalikan dan, bila diperbaiki, masalah tidak muncul lagi. Hindari berhenti di gejala dan hindari menjawab “siapa yang salah”.',
+  top: 'Gejala (awal rantai)', bottom: 'Akhir',
+  steps: mk([
+    ['w0', 'Gejala: output roti tawar shift pagi turun 20% (1.200 → 960 pcs/hari)', 'Titik awal rantai: masalah yang sudah terukur.'],
+    ['w1', 'Why 1 — Mengapa? Batch pertama terlambat masuk oven dan cacat naik menjadi 9%', 'Terlihat dari log oven dan catatan QC.'],
+    ['w2', 'Why 2 — Mengapa? Penimbangan baru dimulai saat shift pagi tiba dan proofing dipersingkat', 'Terobservasi langsung di lini produksi.'],
+    ['w3', 'Why 3 — Mengapa? Bahan dan resep batch pertama tidak disiapkan oleh shift malam', 'Dikonfirmasi lewat wawancara leader shift malam.'],
+    ['w4', 'Why 4 — Mengapa? Rencana produksi pagi tidak diserahterimakan secara tertulis', 'Tidak ada formulir atau catatan baku antar shift.'],
+    ['w5', 'Akar: SOP serah terima shift tidak mewajibkan checklist persiapan dan tidak menunjuk pemilik tugas', 'Penyebab sistemik yang dapat dikendalikan.'],
+    ['w6', 'Validasi akar di lapangan', 'Cek log serah terima 10 hari: 8 dari 10 hari tanpa catatan persiapan bahan.']
+  ]),
+  rules: [
+    R(['w0'], ['w1', 'w2', 'w3', 'w4', 'w5', 'w6'], 'Rantai “mengapa” harus dimulai dari gejala terukur yang ingin dijelaskan.'),
+    R(['w1'], ['w2'], 'Setiap “mengapa” menjawab jawaban sebelumnya; urutan sebab-akibatnya masih tertukar.'),
+    R(['w2'], ['w3'], 'Setiap “mengapa” menjawab jawaban sebelumnya; urutan sebab-akibatnya masih tertukar.'),
+    R(['w3'], ['w4'], 'Setiap “mengapa” menjawab jawaban sebelumnya; urutan sebab-akibatnya masih tertukar.'),
+    R(['w1', 'w2', 'w3', 'w4'], ['w5'], 'Akar penyebab muncul sebelum rantai “mengapa” selesai — kemungkinan berhenti di penyebab yang masih di permukaan.'),
+    R(['w5'], ['w6'], 'Akar penyebab belum divalidasi: tanpa bukti di lapangan, “akar” hanyalah dugaan.')
+  ],
+  hints: ['Mulai dari gejala, lalu setiap langkah menjawab “mengapa” dari langkah sebelumnya, makin dalam ke arah sistem.',
+          'Akar penyebab bukan titik akhir permainan: setelah ditemukan, masih ada langkah memastikannya benar.'],
+  recap: '<b>Alur yang tepat:</b> gejala → Why 1–4 (berbasis fakta) → akar sistemik → validasi data lapangan. Akar yang ditemukan adalah <i>SOP dan pemilik tugas</i>, bukan kesalahan operator tertentu.' },
+
+/* ---------- MISI 2 ---------- */
+{ id: '2.1', m: 2, type: 'order', title: 'PLAN — Rancang Perbaikan Sebelum Bertindak',
+  caseText: 'Akar penyebab sudah diketahui. Namun roti tawar masih masuk display rata-rata pukul 06.40 padahal standar 06.00, sehingga stok jam sibuk kosong ± 40 menit. Susun tahap PLAN dengan benar sebelum tim bergerak.',
+  goal: 'Urutkan langkah tahap Plan dari masalah sampai rencana aksi.',
+  concept: '<b>Plan:</b> definisikan masalah spesifik, kumpulkan fakta/baseline, cari akar penyebab (5 Whys / Fishbone), tetapkan target terukur, lalu susun rencana aksi: <i>apa, siapa PIC, kapan, bagaimana diukur</i>.',
+  top: 'Paling awal', bottom: 'Paling akhir',
+  steps: mk([
+    ['p1', 'Tegaskan masalah spesifik', '“Roti tawar masuk display rata-rata 06.40 (standar 06.00) pada lini shift pagi selama 2 minggu; stok jam sibuk kosong ± 40 menit.”'],
+    ['p2', 'Tetapkan baseline', 'Catat waktu tiap tahap (timbang, mixing, proofing, oven, display) selama 5–7 hari kerja.'],
+    ['p3', 'Gali akar penyebab dari data baseline', 'Batch pertama telat karena bahan tidak disiapkan saat serah terima shift.'],
+    ['p4', 'Tetapkan target terukur', 'Contoh: roti tawar masuk display ≤ 06.05 dan kepatuhan checklist ≥ 95% selama 5 hari pilot.'],
+    ['p5', 'Tentukan indikator leading dan lagging', 'Leading: waktu tunggu, jumlah error, kepatuhan checklist. Lagging: produktivitas, rework/cacat, biaya, kepuasan pelanggan.'],
+    ['p6', 'Susun rencana aksi', 'Apa (checklist serah terima), siapa (PIC), kapan (jadwal pilot), bagaimana diukur (form catatan).']
+  ]),
+  rules: [
+    R(['p1'], ['p2', 'p3', 'p4', 'p5', 'p6'], 'Perbaikan dimulai tanpa masalah yang dirumuskan jelas — Plan harus berangkat dari masalah spesifik.'),
+    R(['p2'], ['p3', 'p4'], 'Akar penyebab dan target ditetapkan sebelum baseline ada: tanpa angka awal, perbaikan tidak punya pembanding.'),
+    R(['p3'], ['p4'], 'Target ditetapkan sebelum akar penyebab diketahui — target bisa meleset dari yang benar-benar perlu diperbaiki.'),
+    R(['p4'], ['p5', 'p6'], 'Indikator dan rencana aksi disusun sebelum target terukur ada.'),
+    R(['p5'], ['p6'], 'Rencana aksi disusun sebelum ditentukan cara mengukur keberhasilannya (indikator).')
+  ],
+  hints: ['Plan yang baik bergerak dari “apa masalahnya” ke “seberapa jauh kita dari standar” ke “mengapa” ke “mau ke mana”.',
+          'Target dan indikator ditetapkan sebelum rencana aksi, supaya rencana aksi memuat cara mengukurnya.'],
+  recap: '<b>Alur yang tepat:</b> masalah → baseline → akar penyebab → target → indikator → rencana aksi (apa, PIC, kapan, ukuran).' },
+
+{ id: '2.2', m: 2, type: 'order', title: 'DO & CHECK — Pilot Terkendali, Evaluasi dengan Data',
+  caseText: 'Rencana siap: pilot checklist serah terima di 1 lini shift pagi selama 5 hari kerja. Susun tahap DO dan CHECK. Catatan: beberapa langkah berjalan paralel, jadi ada langkah yang boleh bertukar posisi.',
+  goal: 'Urutkan langkah Do dan Check dari persiapan pilot sampai kesimpulan berbasis data.',
+  concept: '<b>Do:</b> uji solusi dalam skala terkendali (1 tim/area), briefing singkat, 1 PIC, catat penyimpangan dan ukur sambil berjalan. <b>Check:</b> bandingkan hasil pilot dengan baseline memakai <i>leading</i> dan <i>lagging indicator</i>.',
+  top: 'Paling awal', bottom: 'Paling akhir',
+  steps: mk([
+    ['d1', 'Briefing singkat tim pilot', '1 lini / 1 shift: jelaskan tujuan, checklist, dan cara mencatat (± 10 menit).', 0],
+    ['d2', 'Tunjuk 1 PIC pilot', 'Satu orang yang memantau lapangan dan mengumpulkan catatan.', 0],
+    ['d3', 'Jalankan pilot terkendali', 'Skala kecil, 5 hari kerja — bukan langsung ke seluruh area.', 1],
+    ['d4', 'Catat penyimpangan dan ukur sambil berjalan', 'Misalnya batch telat, bahan belum siap, atau langkah checklist terlewat.', 1],
+    ['d5', 'Bandingkan hasil pilot dengan baseline', 'Leading (waktu tunggu, kepatuhan) dan lagging (output, cacat, rework).', 2],
+    ['d6', 'Tarik kesimpulan berbasis data', 'Target tercapai, sebagian, atau belum — beserta pembelajarannya.', 3]
+  ]),
+  rules: [
+    R(['d1', 'd2'], ['d3', 'd4'], 'Pilot dijalankan sebelum tim siap (briefing dan PIC) — penyimpangan sulit dikendalikan dan data berisiko tidak konsisten.'),
+    R(['d3', 'd4'], ['d5'], 'Perbandingan dengan baseline dilakukan sebelum data pilot tersedia — Check tidak boleh mendahului Do.'),
+    R(['d5'], ['d6'], 'Kesimpulan ditarik sebelum hasil dibandingkan dengan baseline — itu opini, bukan evaluasi.')
+  ],
+  hints: ['Do dimulai dengan menyiapkan orang, bukan langsung menjalankan. Check selalu menunggu data dari Do.',
+          'Mencatat penyimpangan dilakukan selama pilot berjalan, bukan setelahnya. Kesimpulan datang paling akhir.'],
+  recap: '<b>Alur yang tepat:</b> siapkan tim (briefing + PIC) → jalankan pilot sambil mencatat dan mengukur → bandingkan dengan baseline → simpulkan. Langkah briefing/PIC dan jalankan/catat boleh bertukar karena berjalan paralel.' },
+
+{ id: '2.3', m: 2, type: 'order', title: 'ACT — Standarkan Hasil yang Berhasil',
+  caseText: 'Hasil pilot 5 hari: roti tawar masuk display rata-rata 06.04 (baseline 06.40), kepatuhan checklist 95%, rework 9% → 4%. Target tercapai. (Jika hasil hanya sebagian, sesuaikan rencana dan ulangi pilot dengan pembelajaran baru.) Susun tahap ACT.',
+  goal: 'Urutkan langkah Act agar perbaikan menjadi kebiasaan, bukan kejadian sesaat.',
+  concept: '<b>Act:</b> jika berhasil — standarkan SOP, latih tim, tetapkan pemilik proses, dan pantau indikator. Jika sebagian berhasil — sesuaikan dan ulangi pilot dengan pembelajaran baru.',
+  top: 'Paling awal', bottom: 'Paling akhir',
+  steps: mk([
+    ['a1', 'Pastikan hasil pilot konsisten dan tanpa efek samping', 'Cek tiap hari pilot, bukan hanya rata-rata.', 0],
+    ['a2', 'Perbarui dan standarkan SOP serah terima shift', 'Masukkan checklist persiapan bahan dan rencana produksi ke dokumen baku.', 1],
+    ['a3', 'Latih seluruh tim dan semua shift', 'Gunakan SOP versi final; sertakan simulasi singkat.', 2],
+    ['a4', 'Tetapkan pemilik proses', 'Satu nama bertanggung jawab menjaga SOP tetap berjalan.', 2],
+    ['a5', 'Pantau indikator secara berkala', 'Leading (kepatuhan checklist) dan lagging (output, cacat, rework); lakukan audit singkat.', 3],
+    ['a6', 'Dokumentasikan pembelajaran dan mulai siklus PDCA berikutnya', 'Catat apa yang berhasil, lalu pilih masalah berikutnya.', 4]
+  ]),
+  rules: [
+    R(['a1'], ['a2', 'a3', 'a4', 'a5', 'a6'], 'Standardisasi dilakukan sebelum hasil pilot dipastikan konsisten.'),
+    R(['a2'], ['a3', 'a4'], 'Pelatihan dan penunjukan pemilik dilakukan sebelum SOP baru dibakukan — tim akan dilatih versi yang belum final.'),
+    R(['a3', 'a4'], ['a5'], 'Pemantauan dimulai sebelum tim dilatih dan pemilik proses ditetapkan — siapa yang bertindak bila indikator memburuk?'),
+    R(['a5'], ['a6'], 'Siklus berikutnya dimulai sebelum pemantauan memastikan hasilnya bertahan.')
+  ],
+  hints: ['Sebelum membakukan apa pun, pastikan hasilnya memang bisa diandalkan.',
+          'Urutan standardisasi: bakukan dulu → latih dan tunjuk pemilik → pantau → belajar untuk siklus berikutnya.'],
+  recap: '<b>Alur yang tepat:</b> verifikasi hasil → standarkan SOP → latih tim dan tetapkan pemilik proses (boleh bertukar) → pantau indikator → dokumentasi dan siklus PDCA berikutnya.' },
+
+/* ---------- MISI 3 ---------- */
+{ id: '3.1', m: 3, type: 'order', title: 'Prioritaskan Tindakan Perbaikan',
+  caseText: 'Akar masalah: SOP serah terima shift tidak mewajibkan checklist persiapan dan tidak ada pemilik tugas. Tim mengusulkan enam tindakan. Urutkan dari prioritas tertinggi ke terendah berdasarkan dampak pada akar masalah, biaya/waktu, dan efisiensi operasional. (Tindakan yang setara boleh bertukar posisi.)',
+  goal: 'Susun prioritas: tindakan paling efisien dan berdampak nyata ada di atas.',
+  concept: '<b>Membandingkan alternatif:</b> (1) apakah menyentuh akar masalah? (2) berapa biaya dan waktunya? (3) apa efek sampingnya? Tindakan murah yang menyasar akar mengalahkan tindakan mahal yang hanya menutup gejala — dan menyalahkan orang bukan solusi.',
+  top: 'Prioritas tertinggi', bottom: 'Prioritas terendah',
+  steps: mk([
+    ['k1', 'Checklist serah terima shift (rencana produksi + bahan siap)', 'Menyasar akar langsung · biaya ≈ Rp0 · siap dalam 1 minggu', 0],
+    ['k2', 'Tunjuk pemilik tugas persiapan bahan malam dan jadwal penimbangan', 'Menyasar akar · biaya rendah · 1–2 hari', 0],
+    ['k3', 'Briefing/pelatihan 15 menit untuk SOP baru', 'Mendukung perbaikan · dampak tidak langsung · biaya rendah', 1],
+    ['k4', 'Tambah 1 operator sementara di shift pagi', 'Menutup gejala · biaya berulang ± Rp4 juta/bulan', 2],
+    ['k5', 'Beli oven tambahan', 'Investasi ± Rp85 juta · tidak menyentuh akar masalah', 3],
+    ['k6', 'Beri teguran kepada operator shift pagi', 'Menyalahkan orang · tidak menyentuh akar · merusak kepercayaan tim', 3]
+  ]),
+  rules: [
+    R(['k1', 'k2'], ['k3'], 'Pelatihan tidak menggantikan perbaikan sistem: tanpa checklist dan pemilik tugas, hasil pelatihan cepat memudar.'),
+    R(['k1', 'k2', 'k3'], ['k4'], 'Menambah tenaga kerja hanya menutup gejala dan menambah biaya berulang — tindakan yang menyasar akar semestinya lebih dulu.'),
+    R(['k4'], ['k5', 'k6'], 'Investasi besar atau sanksi tidak menyentuh akar masalah — keduanya paling layak ditunda atau dihindari.')
+  ],
+  hints: ['Tanyakan tiap opsi: apakah ia memperbaiki penyebab yang sudah tervalidasi, atau hanya meredam gejalanya?',
+          'Dua kandidat teratas murah, cepat, dan langsung menyentuh SOP. Dua terbawah tidak memperbaiki akar sama sekali.'],
+  recap: '<b>Prioritas:</b> checklist + pemilik tugas (akar, hampir tanpa biaya) → pelatihan (pendukung) → tambah operator (gejala, biaya berulang) → oven baru dan teguran (tidak menyentuh akar).' },
+
+{ id: '3.2', m: 3, type: 'report', title: 'Susun Laporan Kendala yang Solutif',
+  caseText: 'Saatnya merangkum semua temuan. Untuk setiap bagian, pilih draf terbaik. Setelah terkonfirmasi, kamu boleh menyunting teksnya agar sesuai konteks unitmu sendiri.',
+  goal: 'Konfirmasi ketujuh bagian laporan, lalu susun Laporan Kendala final.',
+  concept: '<b>Laporan Kendala yang solutif:</b> masalah spesifik · bukti/data · akar penyebab · alternatif solusi dan efisiensi · PIC · target waktu · indikator keberhasilan. Ringkas, terukur, dan bisa ditindaklanjuti.',
+  sections: [
+    { id: 'r1', label: 'Masalah Spesifik', help: 'Apa, di mana, kapan, seberapa besar, dampak.', opts: [
+      { t: 'Produksi roti pagi sedang bermasalah dan perlu segera dibenahi.', ok: false, fb: 'Masih kabur: tidak menjawab apa yang terukur, di mana, kapan, seberapa besar, dan dampaknya.' },
+      { t: 'Output roti tawar lini shift pagi turun 20% (1.200 → 960 pcs/hari) dan cacat naik 3% → 9% selama 2 minggu terakhir, dengan dampak kehilangan penjualan ± Rp2,4 juta/hari.', ok: true },
+      { t: 'Operator shift pagi kurang disiplin sehingga perlu ditambah tenaga kerja.', ok: false, fb: 'Ini menyalahkan orang dan melompat ke solusi, bukan pernyataan masalah terukur.' } ] },
+    { id: 'r2', label: 'Bukti / Data', help: 'Fakta yang bisa diverifikasi.', opts: [
+      { t: 'Beberapa operator mengatakan pekerjaan terasa terburu-buru dan berat.', ok: false, fb: 'Persepsi belum cukup sebagai bukti; butuh data yang bisa diverifikasi.' },
+      { t: 'Log produksi 14 hari dan catatan QC (cacat 9% vs standar 3%), serta log serah terima shift: 8 dari 10 hari tanpa catatan persiapan bahan.', ok: true },
+      { t: 'Menurut supervisor, kemungkinan oven sudah tua.', ok: false, fb: 'Dugaan tanpa data; belum divalidasi dengan log atau pengukuran.' } ] },
+    { id: 'r3', label: 'Akar Penyebab', help: 'Hasil 5 Whys yang sudah divalidasi.', opts: [
+      { t: 'Adonan sering tidak mengembang sempurna.', ok: false, fb: 'Itu gejala, bukan akar; tanyakan “mengapa” lagi.' },
+      { t: 'Operator pagi kurang teliti dan kurang bertanggung jawab.', ok: false, fb: 'Mencari siapa yang salah; akar masalah ada pada sistem/proses yang bisa diperbaiki.' },
+      { t: 'SOP serah terima shift tidak mewajibkan checklist persiapan bahan dan rencana produksi serta tidak menunjuk pemilik tugas, sehingga batch pertama terlambat dan proofing dipersingkat (tervalidasi lewat 5 Whys dan log serah terima).', ok: true } ] },
+    { id: 'r4', label: 'Alternatif Solusi & Efisiensi', help: 'Bandingkan dampak ke akar, biaya, dan waktu.', opts: [
+      { t: 'Beli oven tambahan (± Rp85 juta) agar kapasitas naik.', ok: false, fb: 'Mahal dan tidak menyentuh akar masalah; efisiensinya rendah.' },
+      { t: 'Prioritas: checklist serah terima + pemilik persiapan bahan (≈ Rp0, 1 minggu, menyasar akar); pelatihan 15 menit sebagai pendukung. Tambah operator (± Rp4 juta/bulan) dan oven baru (± Rp85 juta) ditunda karena mahal dan tidak menyentuh akar.', ok: true },
+      { t: 'Tambah operator pagi dan beri teguran kepada yang lalai.', ok: false, fb: 'Menutup gejala dan menyalahkan orang; biaya berulang tanpa memperbaiki sistem.' } ] },
+    { id: 'r5', label: 'PIC (Penanggung Jawab)', help: 'Siapa yang memimpin dan mendukung.', opts: [
+      { t: 'Seluruh tim produksi bertanggung jawab bersama.', ok: false, fb: 'Tanggung jawab bersama tanpa satu PIC yang jelas cenderung tidak ada yang memimpin.' },
+      { t: 'PIC akan ditentukan setelah ada hasil.', ok: false, fb: 'PIC harus ditetapkan sejak rencana aksi, sebelum pilot berjalan.' },
+      { t: 'Supervisor Produksi sebagai pemilik proses; Leader Shift Pagi sebagai PIC pilot di lapangan; QC mendukung pencatatan data.', ok: true } ] },
+    { id: 'r6', label: 'Target Waktu', help: 'Tonggak pilot, evaluasi, dan standardisasi.', opts: [
+      { t: 'Secepatnya.', ok: false, fb: 'Tidak terukur; tidak ada tanggal yang bisa dipantau.' },
+      { t: 'Pilot 5 hari kerja di 1 lini shift pagi mulai Senin depan; evaluasi di hari ke-5; SOP distandarkan paling lambat 2 minggu setelah pilot berhasil.', ok: true },
+      { t: 'Sebelum akhir tahun.', ok: false, fb: 'Terlalu longgar dan tanpa tonggak (milestone) pilot dan evaluasi.' } ] },
+    { id: 'r7', label: 'Indikator Keberhasilan', help: 'Leading dan lagging dengan angka target.', opts: [
+      { t: 'Semua berjalan lebih baik dan tidak ada keluhan.', ok: false, fb: 'Tidak terukur dan tidak bisa dibandingkan dengan baseline.' },
+      { t: 'Output naik sedikit di akhir bulan.', ok: false, fb: 'Hanya lagging indicator yang samar; tanpa leading indicator dan angka target.' },
+      { t: 'Leading: kepatuhan checklist ≥ 95%, batch pertama masuk oven ≤ 05.45. Lagging: roti tawar masuk display ≤ 06.05, output ≥ 1.200 pcs/hari, cacat ≤ 3%, rework turun.', ok: true } ] }
+  ],
+  hints: [], recap: '' }
+];
+
+const LAST = STAGES.length - 1;
+const MAX_STARS = STAGES.length * 3;
+
+/* ============ STATE ============ */
+let S;
+function newState() {
+  return { view: 'intro', idx: 0, xp: 0, streak: 0, best: 0, open: {}, prog: STAGES.map(initProg) };
+}
+function initProg(st) {
+  const p = { done: false, stars: 3, wrong: 0, hints: 0, gain: 0, hintLog: [], fb: null, flag: [], sel: null };
+  if (st.type === 'order') p.order = shuffledOrder(st);
+  if (st.type === 'match') { p.ans = {}; p.locked = {}; p.bad = {}; }
+  if (st.type === 'report') {
+    p.sec = st.sections.map(sc => ({ ok: false, wrong: 0, text: '', fbs: [], wrongPicks: [], optOrder: shuffle(sc.opts.map((o, i) => i)) }));
+  }
+  return p;
+}
+function shuffledOrder(st) {
+  let o, tries = 0;
+  do { o = shuffle(st.steps.map(s => s.id)); tries++; } while (evalOrder(st, o).ok && tries < 30);
+  return o;
+}
+const cur = () => STAGES[S.idx];
+const prog = () => S.prog[S.idx];
+const firstUndone = () => { const i = S.prog.findIndex(p => !p.done); return i < 0 ? LAST : i; };
+const totalStars = () => S.prog.reduce((n, p) => n + (p.done ? p.stars : 0), 0);
+
+/* ============ LOGIKA ORDERING ============ */
+function evalOrder(st, order) {
+  const tier = {}; st.steps.forEach(s => { tier[s.id] = s.t; });
+  const expected = st.steps.map(s => s.t).sort((a, b) => a - b);
+  let right = 0; order.forEach((id, i) => { if (tier[id] === expected[i]) right++; });
+  const pos = {}; order.forEach((id, i) => { pos[id] = i; });
+  const violated = [];
+  st.rules.forEach(rl => {
+    const maxA = Math.max.apply(null, rl.a.map(x => pos[x]));
+    const minB = Math.min.apply(null, rl.b.map(x => pos[x]));
+    if (maxA > minB) {
+      violated.push({ msg: rl.msg, items: rl.a.filter(x => pos[x] > minB).concat(rl.b.filter(x => pos[x] < maxA)) });
+    }
+  });
+  return { ok: right === order.length, right, violated };
+}
+
+function complete(st, p) {
+  const first = p.wrong === 0;
+  const stars = Math.max(1, p.stars); p.stars = stars;
+  let gain = Math.max(20, 60 + stars * 30 - p.hints * 15);
+  if (first) { S.streak++; S.best = Math.max(S.best, S.streak); gain += Math.min(S.streak, 5) * 10; } else { S.streak = 0; }
+  p.gain = gain; S.xp += gain; p.done = true; p.flag = []; p.sel = null;
+  p.fb = { type: 'ok', gain, stars, first };
+  confetti();
+  notify('stage-complete', Object.assign({ stage: st.id }, progressPayload()));
+  renderAll();
+}
+
+function checkCurrent() {
+  const st = cur(), p = prog();
+  if (p.done) return;
+  if (st.type === 'order') {
+    const r = evalOrder(st, p.order);
+    if (r.ok) return complete(st, p);
+    p.wrong++; p.stars = Math.max(0, p.stars - 1);
+    const msgs = r.violated.slice(0, 2).map(v => v.msg);
+    if (!msgs.length) msgs.push('Masih ada langkah yang saling tertukar. Telaah ulang hubungan sebab-akibat antar langkah.');
+    p.flag = r.violated.length ? r.violated[0].items.slice() : [];
+    p.sel = null;
+    p.fb = { type: 'bad', right: r.right, total: p.order.length, msgs };
+    renderStage();
+  } else if (st.type === 'match') {
+    const empty = st.items.filter(it => !p.locked[it.id] && !p.ans[it.id]);
+    if (empty.length) { p.fb = { type: 'info', msgs: ['Pilih kategori untuk semua penyebab dulu, baru tekan Cek Pemetaan.'] }; return renderStage(); }
+    const wrong = [];
+    p.bad = {};
+    st.items.forEach(it => {
+      if (p.locked[it.id]) return;
+      if (p.ans[it.id] === it.ans) p.locked[it.id] = true; else { wrong.push(it); p.bad[it.id] = true; }
+    });
+    if (!wrong.length) return complete(st, p);
+    p.wrong++; p.stars = Math.max(0, p.stars - 1);
+    p.fb = { type: 'bad', right: st.items.length - wrong.length, total: st.items.length, matchMode: true,
+             msgs: ['Pemetaan pada baris yang ditandai kuning masih perlu ditinjau — petunjuk singkat tampil di barisnya.'] };
+    renderStage();
+  }
+}
+
+function useHint() {
+  const st = cur(), p = prog();
+  if (p.done || p.hints >= 3 || st.type === 'report') return;
+  p.hints++;
+  let txt = '';
+  if (p.hints <= 2) txt = st.hints[p.hints - 1];
+  else if (st.type === 'order') {
+    const sorted = st.steps.slice().sort((a, b) => a.t - b.t);
+    const ties = sorted.filter(s => s.t === sorted[0].t).length > 1;
+    txt = 'Petunjuk kuat: ' + (ties ? 'salah satu langkah di posisi teratas adalah' : 'posisi teratas diisi oleh') + ' “' + sorted[0].h + '”.';
+  } else if (st.type === 'match') {
+    const it = st.items.find(i => !p.locked[i.id]);
+    if (it) {
+      p.locked[it.id] = true; p.ans[it.id] = it.ans; delete p.bad[it.id];
+      txt = 'Petunjuk kuat: penyebab nomor ' + (st.items.indexOf(it) + 1) + ' masuk kategori ' + it.ans + ' dan sudah dikunci.';
+    } else { txt = 'Semua baris sudah terkunci benar. Tekan Cek Pemetaan.'; }
+  }
+  p.hintLog.push(txt);
+  renderStage();
+}
+
+function reshuffle() {
+  const st = cur(), p = prog();
+  if (p.done || st.type !== 'order') return;
+  p.order = shuffledOrder(st); p.flag = []; p.sel = null; p.fb = null;
+  renderStage();
+}
+
+/* ---- gerakan item ---- */
+function moveBy(id, d) {
+  const p = prog(); if (p.done) return;
+  const o = p.order, i = o.indexOf(id), j = i + d;
+  if (j < 0 || j >= o.length) return;
+  [o[i], o[j]] = [o[j], o[i]];
+  p.flag = []; p.sel = null;
+  refreshList(id, d < 0 ? 'up' : 'down');
+  announce('Langkah dipindah ke posisi ' + (j + 1) + ' dari ' + o.length);
+}
+function moveTo(fromId, targetId, before) {
+  const p = prog(); if (p.done || fromId === targetId) return;
+  const o = p.order.filter(x => x !== fromId);
+  const t = o.indexOf(targetId);
+  o.splice(before ? t : t + 1, 0, fromId);
+  p.order = o; p.flag = []; p.sel = null;
+  refreshList(fromId);
+  announce('Langkah dipindah ke posisi ' + (o.indexOf(fromId) + 1) + ' dari ' + o.length);
+}
+function tapSwap(id) {
+  const p = prog(); if (p.done) return;
+  if (!p.sel) { p.sel = id; announce('Langkah dipilih. Ketuk langkah lain untuk menukar.'); }
+  else if (p.sel === id) { p.sel = null; }
+  else {
+    const o = p.order, a = o.indexOf(p.sel), b = o.indexOf(id);
+    [o[a], o[b]] = [o[b], o[a]]; p.sel = null; p.flag = [];
+    announce('Dua langkah ditukar.');
+  }
+  refreshList(id);
+}
+function refreshList(focusId, focusAct) {
+  const st = cur(), p = prog(), ol = $('#orderList');
+  if (!ol) return;
+  ol.innerHTML = listItems(st, p);
+  const f = focusId && ol.querySelector('li[data-id="' + focusId + '"]');
+  if (f) {
+    if (focusAct) { const b = f.querySelector('[data-act="' + focusAct + '"]'); if (b && !b.disabled) { b.focus(); return; } }
+    f.focus();
+  }
+}
+
+/* ============ RENDER ============ */
+function renderAll(focusHeading) {
+  renderNav(); updateStats();
+  const v = $('#view');
+  if (S.view === 'intro') v.innerHTML = introHtml();
+  else if (S.view === 'final') v.innerHTML = finalHtml();
+  else v.innerHTML = stageHtml();
+  if (focusHeading) {
+    window.scrollTo(0, 0);
+    const h = $('#view h2'); if (h) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); }
+  }
+}
+function renderStage() { renderAll(false); }
+
+function updateStats() {
+  $('#xp').textContent = S.xp;
+  $('#stars').textContent = totalStars() + '/' + MAX_STARS;
+  $('#streak').textContent = S.streak;
+}
+
+function renderNav() {
+  const fu = firstUndone();
+  $('#missionNav').innerHTML = MISSIONS.map(m => {
+    const ids = STAGES.map((s, i) => s.m === m.id ? i : -1).filter(i => i >= 0);
+    const done = ids.filter(i => S.prog[i].done).length;
+    const locked = ids[0] > fu;
+    const active = S.view === 'stage' && STAGES[S.idx].m === m.id;
+    const pct = Math.round(done / ids.length * 100);
+    return '<button type="button" class="mpill' + (active ? ' active' : '') + (done === ids.length ? ' done' : '') + '" data-m="' + m.id + '"' + (locked ? ' disabled' : '') + (active ? ' aria-current="step"' : '') + '>' +
+      '<span class="mi" aria-hidden="true">' + (locked ? '🔒' : m.icon) + '</span>' +
+      '<span><b>Misi ' + m.id + '</b><small>' + esc(m.short) + '</small></span>' +
+      '<span class="bar" aria-hidden="true"><i style="width:' + pct + '%"></i></span></button>';
+  }).join('');
+}
+
+const starStr = n => Array.from({ length: 3 }, (_, i) => '<span class="' + (i < n ? 'on' : 'off') + '">★</span>').join('');
+
+function introHtml() {
+  return '<section class="card hero">' +
+    '<div class="eyebrow">Game edukasi · Ordering / Sequencing</div>' +
+    '<h2>Selamatkan Produksi Bakery Mentari!</h2>' +
+    '<p>Output roti tawar shift pagi anjlok 20% dan cacat melonjak. Kamu adalah <b>problem solver</b> yang ditugaskan memimpin perbaikan. Kuncinya bukan kecepatan, melainkan <b>urutan berpikir yang tepat</b>: dari merumuskan masalah, menggali akar penyebab, menjalankan siklus PDCA, hingga menyusun laporan kendala yang solutif.</p>' +
+    '<div class="how">' +
+      '<div><b>1 · Susun urutan</b><span>Seret langkah, ketuk dua langkah untuk menukar, atau pakai tombol ▲▼ (keyboard: Alt + ↑/↓).</span></div>' +
+      '<div><b>2 · Cek Urutan</b><span>Dapatkan umpan balik diagnostik. Setiap kekeliruan mengurangi bintang.</span></div>' +
+      '<div><b>3 · Petunjuk bertingkat</b><span>Tiga level petunjuk; masing-masing mengurangi XP tahap tersebut.</span></div>' +
+      '<div><b>4 · Laporan Kendala</b><span>Akhiri dengan laporan yang bisa disalin atau diunduh.</span></div>' +
+    '</div>' +
+    '<p><b>Materi:</b> masalah spesifik · gejala vs akar masalah · 5 Whys · Fishbone 6M · PDCA · efisiensi &amp; alternatif solusi. 3 misi, 9 tahap, ± 15–25 menit.</p>' +
+    '<div class="actions"><button type="button" class="btn gold" data-act="start">▶ Mulai Misi 1</button><button type="button" class="btn soft" data-act="help">Lihat petunjuk lengkap</button></div>' +
+  '</section>';
+}
+
+function stageHtml() {
+  const st = cur(), p = prog(), m = MISSIONS[st.m - 1];
+  const ids = STAGES.map((s, i) => s.m === st.m ? i : -1).filter(i => i >= 0);
+  const k = ids.indexOf(S.idx), fu = firstUndone();
+  let h = '';
+  if (k === 0) h += '<section class="brief"><span class="bi" aria-hidden="true">' + m.icon + '</span><div><b>Misi ' + m.id + ': ' + esc(m.name) + '</b><p>' + esc(m.brief) + '</p></div></section>';
+  h += '<section class="card stage"><div class="shead"><span class="badge">Misi ' + m.id + ' · Tahap ' + (k + 1) + '/' + ids.length + '</span>' +
+    '<div class="dots" role="group" aria-label="Navigasi tahap">' +
+    ids.map((id, n) => '<button type="button" class="dot' + (id === S.idx ? ' cur' : '') + (S.prog[id].done ? ' done' : '') + '" data-goto="' + id + '"' + (id > fu ? ' disabled' : '') + ' aria-label="Tahap ' + (n + 1) + (S.prog[id].done ? ' (selesai)' : '') + '">' + (n + 1) + '</button>').join('') +
+    '</div><div class="starrow" role="img" aria-label="Bintang tahap ini: ' + p.stars + ' dari 3">' + starStr(p.stars) + '</div></div>';
+  h += '<h2>' + esc(st.title) + '</h2>';
+  h += '<div class="case"><b>📌 Kasus</b><p>' + esc(st.caseText) + '</p></div>';
+  const open = S.open[S.idx] === undefined ? k === 0 : S.open[S.idx];
+  h += '<details class="concept" data-idx="' + S.idx + '"' + (open ? ' open' : '') + '><summary>📚 Panduan konsep</summary><div>' + st.concept + '</div></details>';
+  h += '<p class="goal">🎯 ' + esc(st.goal) + '</p>';
+  if (st.type === 'order') h += orderHtml(st, p);
+  else if (st.type === 'match') h += matchHtml(st, p);
+  else h += reportHtml(st, p);
+  h += '<div class="fbwrap" id="fb">' + fbHtml(st, p) + '</div>';
+  if (st.type !== 'report') {
+    h += '<div class="actions">';
+    if (p.done) h += '<button type="button" class="btn gold" data-act="next">' + (S.idx === LAST ? 'Lihat Hasil' : 'Lanjut ▶') + '</button>';
+    else {
+      h += '<button type="button" class="btn primary" data-act="check">✔ ' + (st.type === 'match' ? 'Cek Pemetaan' : 'Cek Urutan') + '</button>';
+      h += '<button type="button" class="btn soft" data-act="hint"' + (p.hints >= 3 ? ' disabled' : '') + '>💡 Petunjuk (' + p.hints + '/3)</button>';
+      if (st.type === 'order') h += '<button type="button" class="btn soft" data-act="shuffle">🔀 Acak ulang</button>';
+    }
+    h += '</div>';
+  }
+  h += '</section>';
+  return h;
+}
+
+function listItems(st, p) {
+  const by = {}; st.steps.forEach(s => { by[s.id] = s; });
+  const n = p.order.length;
+  return p.order.map((id, i) => {
+    const s = by[id], cls = ['step'];
+    if (p.done) cls.push('ok');
+    if (p.sel === id) cls.push('sel');
+    if (p.flag.indexOf(id) >= 0) cls.push('flag');
+    return '<li class="' + cls.join(' ') + '" data-id="' + id + '" tabindex="0" draggable="' + (p.done ? 'false' : 'true') + '" aria-label="Posisi ' + (i + 1) + ' dari ' + n + ': ' + esc(s.h) + (p.sel === id ? ' (terpilih untuk ditukar)' : '') + '">' +
+      '<span class="grip" aria-hidden="true">⠿</span><span class="num" aria-hidden="true">' + (i + 1) + '</span>' +
+      '<div class="txt"><b>' + esc(s.h) + '</b><span>' + esc(s.d) + '</span></div>' +
+      '<div class="mv"><button type="button" class="icon" data-act="up" aria-label="Naikkan: ' + esc(s.h) + '"' + (p.done || i === 0 ? ' disabled' : '') + '>▲</button>' +
+      '<button type="button" class="icon" data-act="down" aria-label="Turunkan: ' + esc(s.h) + '"' + (p.done || i === n - 1 ? ' disabled' : '') + '>▼</button></div></li>';
+  }).join('');
+}
+function orderHtml(st, p) {
+  return '<div class="ohint">Seret langkah, atau ketuk dua langkah untuk menukar, atau pakai tombol ▲▼ (keyboard: fokus pada langkah lalu Alt + ↑/↓).</div>' +
+    '<div class="olabel">▲ ' + esc(st.top) + '</div><ol class="order" id="orderList">' + listItems(st, p) + '</ol><div class="olabel">▼ ' + esc(st.bottom) + '</div>';
+}
+
+function matchHtml(st, p) {
+  return '<div class="matchlist">' + st.items.map((it, i) => {
+    const lock = p.locked[it.id], bad = p.bad[it.id];
+    return '<div class="mrow' + (lock ? ' ok' : '') + (bad ? ' bad' : '') + '"><label for="mq' + i + '"><span class="num">' + (i + 1) + '</span><span>' + esc(it.text) + '</span></label>' +
+      '<select id="mq' + i + '" data-mid="' + it.id + '"' + (lock ? ' disabled' : '') + '><option value="">— pilih kategori —</option>' +
+      st.cats.map(c => '<option value="' + esc(c.v) + '"' + (p.ans[it.id] === c.v ? ' selected' : '') + '>' + esc(c.l) + '</option>').join('') + '</select>' +
+      (lock ? '<span class="tick" aria-label="benar">✓</span>' : '') +
+      (bad ? '<small class="clue">💭 ' + esc(it.clue) + '</small>' : '') + '</div>';
+  }).join('') + '</div>';
+}
+
+function reportHtml(st, p) {
+  let h = '<div class="rep">';
+  st.sections.forEach((sc, i) => {
+    const q = p.sec[i];
+    h += '<div class="rsec' + (q.ok ? ' ok' : '') + '"><div class="rh"><span class="rn">' + (i + 1) + '</span><div><b>' + esc(sc.label) + '</b><small>' + esc(sc.help) + '</small></div>' + (q.ok ? '<span class="tick">✓ Terkonfirmasi</span>' : '') + '</div>';
+    if (q.ok) {
+      h += '<label class="sr-only" for="rt' + i + '">Teks ' + esc(sc.label) + '</label><textarea id="rt' + i + '" data-sec="' + i + '" rows="3"' + (p.done ? ' readonly' : '') + '>' + esc(q.text) + '</textarea>';
+    } else {
+      h += '<div class="opts" role="group" aria-label="Pilih draf untuk ' + esc(sc.label) + '">';
+      q.optOrder.forEach(oi => {
+        const wr = q.wrongPicks.indexOf(oi) >= 0;
+        h += '<button type="button" class="opt' + (wr ? ' wrong' : '') + '" data-sec="' + i + '" data-opt="' + oi + '"' + (wr ? ' disabled' : '') + '>' + esc(sc.opts[oi].t) + '</button>';
+      });
+      h += '</div>';
+      if (q.fbs.length) h += '<div class="fbbox bad"><b>Mengapa belum tepat?</b><ul>' + q.fbs.map(f => '<li>' + esc(f) + '</li>').join('') + '</ul></div>';
+    }
+    h += '</div>';
+  });
+  const all = p.sec.every(q => q.ok);
+  if (p.done) h += '<div class="actions"><button type="button" class="btn gold" data-act="next">Lihat Hasil</button></div>';
+  else h += '<div class="actions"><button type="button" class="btn gold" data-act="finish"' + (all ? '' : ' disabled') + '>📄 Susun Laporan Final</button>' +
+    (all ? '' : '<span class="ohint" style="align-self:center">Konfirmasi semua bagian (' + p.sec.filter(q => q.ok).length + '/' + p.sec.length + ') untuk membuka laporan final.</span>') + '</div>';
+  return h + '</div>';
+}
+
+function fbHtml(st, p) {
+  let h = '';
+  p.hintLog.forEach((t, i) => { h += '<div class="fbbox hint"><b>💡 Petunjuk ' + (i + 1) + '</b><p>' + esc(t) + '</p></div>'; });
+  const f = p.fb;
+  if (!f || st.type === 'report') return h;
+  if (f.type === 'ok') {
+    h += '<div class="fbbox ok"><b>✅ Tepat! +' + f.gain + ' XP · ' + '⭐'.repeat(f.stars) + (f.first ? ' · bonus streak 🔥' : '') + '</b><p>' + st.recap + '</p></div>';
+  } else if (f.type === 'bad') {
+    h += '<div class="fbbox bad"><b>❌ Belum tepat — ' + f.right + ' dari ' + f.total + (f.matchMode ? ' pemetaan benar' : ' posisi sudah tepat') + '. Bintang tersisa: ' + '⭐'.repeat(p.stars) + (p.stars === 0 ? '(minimal 1 bintang saat selesai)' : '') + '</b><ul>' +
+      f.msgs.map(m => '<li>' + esc(m) + '</li>').join('') + '</ul>' +
+      (!f.matchMode ? '<p>Langkah berwarna kuning terlibat dalam kekeliruan. Tinjau hubungan sebab-akibatnya.</p>' : '') +
+      (p.wrong >= 2 && p.hints < 3 ? '<p>Buntu? Gunakan tombol <b>Petunjuk</b>.</p>' : '') + '</div>';
+  } else {
+    h += '<div class="fbbox info"><b>ℹ️ Info</b><ul>' + f.msgs.map(m => '<li>' + esc(m) + '</li>').join('') + '</ul></div>';
+  }
+  return h;
+}
+
+/* ---- laporan: pilih opsi, selesai ---- */
+function pickOption(si, oi) {
+  const st = cur(), p = prog(), sc = st.sections[si], q = p.sec[si];
+  if (q.ok) return;
+  const o = sc.opts[oi];
+  if (o.ok) {
+    q.ok = true; q.text = o.t;
+    const g = Math.max(10, 40 - 10 * q.wrong); S.xp += g; p.gain += g;
+    announce('Bagian ' + sc.label + ' terkonfirmasi. Plus ' + g + ' XP.');
+  } else {
+    q.wrong++; q.wrongPicks.push(oi); q.fbs.push(o.fb);
+  }
+  renderAll(false);
+}
+function finishReport() {
+  const st = cur(), p = prog();
+  if (p.done || !p.sec.every(q => q.ok)) return;
+  const w = p.sec.reduce((n, q) => n + q.wrong, 0);
+  p.stars = w === 0 ? 3 : (w <= 2 ? 2 : 1);
+  if (w === 0) { S.streak++; S.best = Math.max(S.best, S.streak); } else S.streak = 0;
+  p.done = true; confetti();
+  S.view = 'final';
+  renderAll(true);
+  notify('stage-complete', Object.assign({ stage: st.id }, progressPayload()));
+  const pct = scorePct();
+  notify('game-complete', Object.assign(progressPayload(), { status: 'completed', score: pct, rank: rankOf(pct), bestStreak: S.best, report: buildReportText() }));
+}
+
+/* ---- hasil akhir ---- */
+const scorePct = () => Math.round(totalStars() / MAX_STARS * 100);
+const rankOf = pct => pct >= 85 ? 'Master Problem Solver' : pct >= 65 ? 'Problem Solver Andal' : 'Calon Problem Solver';
+function finalHtml() {
+  const pct = scorePct(), hints = S.prog.reduce((n, p) => n + p.hints, 0);
+  const mbars = MISSIONS.map(m => {
+    const ids = STAGES.map((s, i) => s.m === m.id ? i : -1).filter(i => i >= 0);
+    const got = ids.reduce((n, i) => n + (S.prog[i].done ? S.prog[i].stars : 0), 0), mx = ids.length * 3;
+    return '<div class="mbar"><span>Misi ' + m.id + ' · ' + esc(m.short) + '</span><i><em style="width:' + Math.round(got / mx * 100) + '%"></em></i><b>' + got + '/' + mx + '</b></div>';
+  }).join('');
+  return '<section class="card hero"><div class="eyebrow">Misi selesai 🎉</div><h2>' + esc(rankOf(pct)) + '</h2>' +
+    '<p>Kamu berhasil memimpin perbaikan di Bakery Mentari — dari keluhan kabur hingga laporan kendala yang solutif.</p>' +
+    '<div class="tiles"><div class="tile"><small>Total XP</small><b>' + S.xp + '</b></div><div class="tile"><small>Bintang</small><b>' + totalStars() + '/' + MAX_STARS + '</b></div>' +
+    '<div class="tile"><small>Skor</small><b>' + pct + '%</b></div><div class="tile"><small>Streak terbaik</small><b>' + S.best + '</b></div><div class="tile"><small>Petunjuk dipakai</small><b>' + hints + '</b></div></div>' +
+    mbars + '</section>' +
+    '<section class="card"><h2>📄 Laporan Kendala</h2><p class="ohint">Teks di bawah memuat hasil suntinganmu. Salin atau unduh untuk diserahkan.</p>' +
+    '<pre class="report" id="reportPre" tabindex="0">' + esc(buildReportText()) + '</pre>' +
+    '<div class="actions"><button type="button" class="btn primary" data-act="copy">📋 Salin Ringkasan</button><button type="button" class="btn soft" data-act="dltxt">⬇ Unduh .txt</button><button type="button" class="btn soft" data-act="dlhtml">⬇ Unduh .html</button></div></section>' +
+    '<section class="card"><h2>🧠 Pelajaran kunci</h2><ul class="learn">' +
+    '<li>Rumuskan masalah spesifik: <i>apa, kapan, di mana, seberapa besar, dampaknya</i>.</li>' +
+    '<li>Pisahkan gejala dari akar masalah; gunakan 5 Whys berbasis fakta dan validasi akarnya.</li>' +
+    '<li>Petakan penyebab dengan Fishbone 6M agar tidak bias pada satu dugaan.</li>' +
+    '<li>Disiplin PDCA: Plan dengan baseline dan target → Do lewat pilot → Check dengan data → Act dengan standardisasi.</li>' +
+    '<li>Pilih solusi yang menyentuh akar dengan biaya dan waktu paling efisien.</li>' +
+    '<li>Laporan yang baik: terukur, punya PIC, target waktu, dan indikator keberhasilan.</li></ul>' +
+    '<div class="actions"><button type="button" class="btn gold" data-act="replay">↺ Main Lagi</button><button type="button" class="btn soft" data-act="review">Tinjau tahap</button></div></section>';
+}
+
+function buildReportText() {
+  const rs = STAGES[LAST], p = S.prog[LAST], pct = scorePct();
+  const date = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const L = ['LAPORAN KENDALA — BAKERY MENTARI', 'Tanggal: ' + date, ''];
+  rs.sections.forEach((sc, i) => {
+    const t = (p.sec[i].text || '').trim();
+    L.push((i + 1) + '. ' + sc.label.toUpperCase(), t || '-', '');
+  });
+  L.push('RINGKASAN PERMAINAN',
+    'Peringkat: ' + rankOf(pct) + ' · Skor ' + pct + '% · ' + totalStars() + '/' + MAX_STARS + ' bintang · ' + S.xp + ' XP');
+  return L.join('\n');
+}
+function buildReportHtml() {
+  const rs = STAGES[LAST], p = S.prog[LAST], pct = scorePct();
+  const date = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const secs = rs.sections.map((sc, i) => '<h2>' + (i + 1) + '. ' + esc(sc.label) + '</h2><p>' + esc((p.sec[i].text || '-').trim()).replace(/\n/g, '<br>') + '</p>').join('');
+  return '<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><title>Laporan Kendala — Bakery Mentari</title><style>body{font-family:"Segoe UI",Arial,sans-serif;max-width:760px;margin:24px auto;padding:0 16px;color:#14213D;line-height:1.55}h1{color:#0B2545;border-bottom:4px solid #F2A93B;padding-bottom:8px}h2{font-size:1rem;color:#0B7F8A;margin:18px 0 4px}p{margin:0}.meta{color:#5A6A82;font-size:.9rem}</style></head><body><h1>Laporan Kendala — Bakery Mentari</h1><p class="meta">' + esc(date) + '</p>' + secs +
+    '<h2>Ringkasan Permainan</h2><p>' + esc(rankOf(pct)) + ' · Skor ' + pct + '% · ' + totalStars() + '/' + MAX_STARS + ' bintang · ' + S.xp + ' XP</p></body></html>';
+}
+
+/* ============ UTILITAS UI ============ */
+let toastT;
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2800);
+}
+function announce(msg) { const s = $('#sr'); s.textContent = ''; setTimeout(() => { s.textContent = msg; }, 30); }
+
+function confetti() {
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const fx = $('#fx'), cols = ['#F2A93B', '#0B7F8A', '#13315C', '#17855A', '#E2674A'];
+  for (let i = 0; i < 40; i++) {
+    const s = document.createElement('i');
+    s.style.left = (Math.random() * 100) + 'vw';
+    s.style.background = cols[i % cols.length];
+    s.style.animationDelay = (Math.random() * 0.4) + 's';
+    s.style.animationDuration = (1.2 + Math.random()) + 's';
+    fx.appendChild(s);
+  }
+  setTimeout(() => { fx.innerHTML = ''; }, 2800);
+}
+
+function copyText(t) {
+  const fallback = () => {
+    const ta = document.createElement('textarea');
+    ta.value = t; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    let ok = false; try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    ta.remove();
+    toast(ok ? 'Ringkasan disalin ✔' : 'Salin manual: blok teks laporan lalu tekan Ctrl+C');
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
+    navigator.clipboard.writeText(t).then(() => toast('Ringkasan disalin ✔'), fallback);
+  } else fallback();
+}
+function download(name, mime, content) {
+  try {
+    const b = new Blob([content], { type: mime + ';charset=utf-8' }), u = URL.createObjectURL(b);
+    const a = document.createElement('a'); a.href = u; a.download = name; document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(u); a.remove(); }, 600);
+    toast('Unduhan dimulai. Bila tidak muncul, gunakan Salin Ringkasan.');
+  } catch (e) { toast('Unduhan diblokir oleh LMS. Gunakan Salin Ringkasan.'); }
+}
+
+/* ---- modal ---- */
+let lastFocus = null;
+function modal(title, body, buttons) {
+  const o = $('#modal');
+  o.innerHTML = '<div class="mbox" role="dialog" aria-modal="true" aria-labelledby="mt"><h2 id="mt">' + title + '</h2><div>' + body + '</div><div class="mbtns"></div></div>';
+  const bt = $('.mbtns', o);
+  buttons.forEach(b => {
+    const el = document.createElement('button');
+    el.type = 'button'; el.className = 'btn ' + (b.cls || 'soft'); el.textContent = b.label;
+    el.addEventListener('click', () => { closeModal(); if (b.fn) b.fn(); });
+    bt.appendChild(el);
+  });
+  lastFocus = document.activeElement; o.hidden = false;
+  const f = bt.querySelector('button'); if (f) f.focus();
+}
+function closeModal() {
+  const o = $('#modal'); o.hidden = true; o.innerHTML = '';
+  if (lastFocus && lastFocus.focus) lastFocus.focus();
+}
+function showHelp() {
+  modal('Cara bermain',
+    '<ul><li><b>Tujuan:</b> menyusun urutan langkah pemecahan masalah yang tepat di tiga misi.</li>' +
+    '<li><b>Menyusun:</b> seret langkah; atau ketuk dua langkah untuk menukar; atau tombol ▲▼; atau fokus pada langkah lalu <b>Alt + ↑/↓</b>.</li>' +
+    '<li><b>Cek Urutan:</b> jawaban benar membuka tahap berikutnya. Jawaban keliru memberi umpan balik diagnostik dan mengurangi 1 bintang (minimal 1 bintang saat selesai).</li>' +
+    '<li><b>Petunjuk:</b> 3 level, tiap level mengurangi 15 XP dari tahap itu.</li>' +
+    '<li><b>XP &amp; Streak:</b> selesai tanpa salah menambah bonus streak.</li>' +
+    '<li><b>Akhir:</b> susun Laporan Kendala, lalu salin atau unduh.</li></ul>',
+    [{ label: 'Mengerti', cls: 'primary' }]);
+}
+function confirmReset() {
+  modal('Reset permainan?', '<p>Semua progres, XP, dan bintang akan dihapus.</p>',
+    [{ label: 'Batal' }, { label: 'Ya, reset', cls: 'gold', fn: doReset }]);
+}
+function doReset() {
+  S = newState(); renderAll(true); notify('game-reset', progressPayload());
+}
+
+/* ---- komunikasi LMS ---- */
+function progressPayload() {
+  const n = S.prog.filter(p => p.done).length;
+  return { completed: n, total: STAGES.length, progress: Math.round(n / STAGES.length * 100), xp: S.xp, stars: totalStars(), maxStars: MAX_STARS };
+}
+function notify(type, extra) {
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage(Object.assign({ source: GAME_ID, type: type }, extra || {}), LMS_ORIGIN);
+    }
+  } catch (e) { /* aman: abaikan jika diblokir */ }
+}
+
+/* ============ NAVIGASI ============ */
+function goto(i) {
+  if (i > firstUndone()) return;
+  S.idx = i; S.view = 'stage'; renderAll(true);
+}
+function nextStage() {
+  if (S.idx < LAST) { S.idx++; S.view = 'stage'; } else { S.view = 'final'; }
+  renderAll(true);
+}
+
+/* ============ EVENT (delegasi) ============ */
+let dragId = null;
+const view = $('#view');
+
+view.addEventListener('click', e => {
+  const t = e.target.closest('[data-act]');
+  if (t) {
+    const a = t.dataset.act;
+    if (a === 'start') { S.view = 'stage'; S.idx = 0; renderAll(true); notify('game-start', progressPayload()); }
+    else if (a === 'help') showHelp();
+    else if (a === 'check') checkCurrent();
+    else if (a === 'hint') useHint();
+    else if (a === 'shuffle') reshuffle();
+    else if (a === 'next') nextStage();
+    else if (a === 'up' || a === 'down') { const li = t.closest('li'); if (li) moveBy(li.dataset.id, a === 'up' ? -1 : 1); }
+    else if (a === 'finish') finishReport();
+    else if (a === 'copy') copyText(buildReportText());
+    else if (a === 'dltxt') download('laporan-kendala-bakery-mentari.txt', 'text/plain', buildReportText());
+    else if (a === 'dlhtml') download('laporan-kendala-bakery-mentari.html', 'text/html', buildReportHtml());
+    else if (a === 'replay') confirmReset();
+    else if (a === 'review') { S.idx = 0; S.view = 'stage'; renderAll(true); }
+    return;
+  }
+  const dot = e.target.closest('[data-goto]');
+  if (dot) { goto(parseInt(dot.dataset.goto, 10)); return; }
+  const opt = e.target.closest('.opt');
+  if (opt && !opt.disabled) { pickOption(parseInt(opt.dataset.sec, 10), parseInt(opt.dataset.opt, 10)); return; }
+  const li = e.target.closest('li.step');
+  if (li) tapSwap(li.dataset.id);
+});
+
+view.addEventListener('keydown', e => {
+  const li = e.target.closest && e.target.closest('li.step');
+  if (!li || e.target !== li) return;
+  const id = li.dataset.id;
+  if ((e.altKey || e.ctrlKey) && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+    e.preventDefault(); moveBy(id, e.key === 'ArrowUp' ? -1 : 1); return;
+  }
+  if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+    e.preventDefault();
+    const sib = e.key === 'ArrowUp' ? li.previousElementSibling : li.nextElementSibling;
+    if (sib) sib.focus(); return;
+  }
+  if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); tapSwap(id); }
+});
+
+view.addEventListener('change', e => {
+  const sel = e.target.closest && e.target.closest('select[data-mid]');
+  if (!sel) return;
+  const p = prog(); p.ans[sel.dataset.mid] = sel.value;
+  delete p.bad[sel.dataset.mid];
+  const row = sel.closest('.mrow'); if (row) { row.classList.remove('bad'); const c = row.querySelector('.clue'); if (c) c.remove(); }
+});
+view.addEventListener('input', e => {
+  const ta = e.target.closest && e.target.closest('textarea[data-sec]');
+  if (ta) prog().sec[parseInt(ta.dataset.sec, 10)].text = ta.value;
+});
+view.addEventListener('toggle', e => {
+  const d = e.target;
+  if (d && d.matches && d.matches('details.concept')) S.open[parseInt(d.dataset.idx, 10)] = d.open;
+}, true);
+
+/* drag & drop (mouse / desktop) */
+function clearOver() { view.querySelectorAll('.over-top,.over-bottom').forEach(n => n.classList.remove('over-top', 'over-bottom')); }
+view.addEventListener('dragstart', e => {
+  const li = e.target.closest && e.target.closest('li.step');
+  if (!li || prog().done) { e.preventDefault(); return; }
+  dragId = li.dataset.id;
+  e.dataTransfer.effectAllowed = 'move';
+  try { e.dataTransfer.setData('text/plain', dragId); } catch (x) { /* abaikan */ }
+  setTimeout(() => li.classList.add('dragging'), 0);
+});
+view.addEventListener('dragover', e => {
+  if (!dragId) return;
+  e.preventDefault();
+  clearOver();
+  const li = e.target.closest && e.target.closest('li.step');
+  if (li && li.dataset.id !== dragId) {
+    const r = li.getBoundingClientRect();
+    li.classList.add(e.clientY < r.top + r.height / 2 ? 'over-top' : 'over-bottom');
+  }
+});
+view.addEventListener('drop', e => {
+  if (!dragId) return;
+  e.preventDefault();
+  const li = e.target.closest && e.target.closest('li.step');
+  if (li) {
+    const r = li.getBoundingClientRect();
+    const id = dragId; dragId = null; clearOver();
+    moveTo(id, li.dataset.id, e.clientY < r.top + r.height / 2);
+  }
+});
+view.addEventListener('dragend', () => {
+  dragId = null; clearOver();
+  view.querySelectorAll('.dragging').forEach(n => n.classList.remove('dragging'));
+});
+
+/* navigasi misi, header, modal */
+$('#missionNav').addEventListener('click', e => {
+  const b = e.target.closest('[data-m]'); if (!b || b.disabled) return;
+  const mid = parseInt(b.dataset.m, 10);
+  const ids = STAGES.map((s, i) => s.m === mid ? i : -1).filter(i => i >= 0);
+  let target = ids.find(i => !S.prog[i].done); if (target === undefined) target = ids[0];
+  goto(target);
+});
+$('#btnHelp').addEventListener('click', showHelp);
+$('#btnReset').addEventListener('click', confirmReset);
+$('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+document.addEventListener('keydown', e => {
+  const o = $('#modal'); if (o.hidden) return;
+  if (e.key === 'Escape') { closeModal(); return; }
+  if (e.key === 'Tab') {
+    const bs = o.querySelectorAll('button'); if (!bs.length) return;
+    const first = bs[0], last = bs[bs.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+});
+
+/* ============ START ============ */
+S = newState();
+renderAll(false);
+notify('game-ready', { totalStages: STAGES.length, maxStars: MAX_STARS });
+if (typeof ResizeObserver !== 'undefined') {
+  try { new ResizeObserver(() => notify('resize', { height: document.documentElement.scrollHeight })).observe(document.body); } catch (e) { /* abaikan */ }
+}
+})();
+</script>
+</body>
+</html>
